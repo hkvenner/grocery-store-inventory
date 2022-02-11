@@ -1,2 +1,3 @@
 # grocery-store-inventory
+In this project, I use my knowledge of CSV, file reading and creation, and SQLAlchemy to build a console application that allows the user to easily interact with inventory data. The program first reads in the data, cleans it, and then adds it to a SQLite database. The database has two tables, one for each CSV file. I created a console application using SQLAlchemy’s ORM methods to give users the ability to view records, create records, edit and delete records, and display some analysis of the data. The users may also have the ability to create a backup of the data where two new CSV files are created reflecting the current state of the database.
  
