@@ -28,5 +28,5 @@ class Product(Base):
     brand_id = Column(Integer, ForeignKey("brands.brand_id"))
 
     def __repr__(self):
-        return f'<Product(name={self.product_name}, quantity={self.product_quantity}, price={self.product_price}, date_updated ={self.date_updated})'
+        return f'<Product(name={self.product_name}, quantity={self.product_quantity}, price={self.product_price}, date_updated ={self.date_updated}, brand_id ={self.brand_id})'
 
