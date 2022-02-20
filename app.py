@@ -1,5 +1,3 @@
-from ast import Try
-from tkinter.tix import INTEGER
 from models import (Base, session, 
                     Product, Brand, engine)
 
@@ -34,6 +32,7 @@ def clean_date(date_str):
     except ValueError: 
         input('''\n Please enter a valid date and time in the format 6/8/2018. 
                 \r Hit enter to try again ''')
+        return
     else: 
         return return_date
 
@@ -42,10 +41,26 @@ def clean_price(price_str):
         price_float = float(price_str[1:])
         return_price = int(price_float * 100)
     except ValueError: 
-        input('''\n Please enter a valid price in the format $8.14 . 
+        input('''\n Please enter a valid price in the format 8.14 . 
                 \r Hit enter to try again ''')
+        return
     else: 
         return return_price
+
+def clean_id(id_str, id_choices):
+    try: 
+        product_id = int(id_str)
+    except ValueError: 
+        input('''\n Please enter a valid ID that is a number (Ex: 3). 
+                \r Hit enter to try again ''')
+        return
+    else:
+        if product_id in id_choices: 
+            return product_id
+        else: 
+            input(f'''\n Please enter a valid ID that is on the list of existing IDs. 
+                        \r Hit enter to try again ''')
+            return
 
 def add_csv_inventory():
     with open('inventory.csv', "r") as csvfile:
@@ -57,6 +72,7 @@ def add_csv_inventory():
             product_in_db = session.query(Product).filter(Product.product_name == row[0]).one_or_none()
             if product_in_db == None:
                 product_name = row[0]
+                print(row[1])
                 product_price = clean_price(row[1])
                 product_quantity = row[2]
                 date_updated = clean_date(row[3])
@@ -84,7 +100,7 @@ def add_csv_inventory():
                 date_updated = clean_date(row[3])
                 brand_name = row[4]
                 #this needs to be updated eventually
-                brand_id = 1
+                brand_id = session.query(Brand).filter(Brand.brand_name == brand_name).first().brand_id
                 new_product = Product(product_name=product_name, product_price = product_price, 
                                             product_quantity = product_quantity, date_updated = date_updated, 
                                             brand_id = brand_id)
@@ -113,7 +129,25 @@ def app():
         choice = menu()
         if choice == 'V': 
             #view details of a single product
-            pass
+            id_choices = []
+            for product in session.query(Product):
+                id_choices.append(product.product_id)
+            id_error = True
+            while id_error: 
+                id_choice = input(f'''
+                \nID Choices: {id_choices}
+                \rID of product you'd like to view:  ''')
+                id_choice = clean_id(id_choice, id_choices)
+                if type(id_choice) == int: 
+                    id_error = False
+            chosen_product = session.query(Product).filter(Product.product_id == id_choice).first()
+            print(f'''
+            \n{chosen_product.product_id} | Name: {chosen_product.product_name} | Price: ${chosen_product.product_price/100} 
+            \r  | Quantity: {chosen_product.product_quantity} | Date Updated: {chosen_product.date_updated}') ''')
+            # for product in session.query(Product):
+            #     print(f'{product.product_id} | Product: {product.product_name} | Product Price: {product.product_price} cents | Quantity: {product.product_quantity} | Date Updated: {product.date_updated}')
+            input('\nPress Enter to return to the main menu')
+
         elif choice == 'N':
             #add new product to database
             product_name = input('Product Name: ')
@@ -132,7 +166,7 @@ def app():
                     date_error = False
             brand_name = input('Brand Name: ')
             #this needs to be updated eventually
-            brand_id = 1
+            brand_id = session.query(Brand).filter(Brand.brand_name == brand_name).first().brand_id
             new_product = Product(product_name=product_name, product_price=product_price,
                                 product_quantity=product_quantity, date_updated=date_updated,
                                 brand_id=brand_id)
@@ -143,10 +177,33 @@ def app():
             
         elif choice == 'A':
             #view analysis
-            pass
+            least_expensive = session.query(Product).order_by(Product.product_price).first()
+            print(f'''This is the least expensive product: {least_expensive}''')
+            most_expensive = session.query(Product).order_by(Product.product_price.desc()).first()
+            print(f'''This is the most expensive product: {most_expensive}''')
+            highest_count = 0
+            for brand in session.query(Brand): 
+                count = session.query(Product).filter(Product.brand_id == brand.brand_id).count()
+                if count > highest_count: 
+                    highest_count = count
+                    most_popular = brand
+            print(f'''This is the most popular brand: {most_popular.brand_name}. There are {highest_count} products from this brand.''')
+                
+
         elif choice == 'B':
             #make a backup of the entire database
-            pass
+            with open('inventory_backup', 'a') as csvfile: 
+                fieldnames = ['product_id','product_name','product_price','product_quantity','date_updated','brand_id']
+                dbwriter = csv.DictWriter(csvfile, fieldnames = fieldnames)
+
+                dbwriter.writeheader()
+                for product in session.query(Product):
+                    dbwriter.writerow({'product_id': product.product_id,
+                                    'product_name': product.product_name,
+                                    'product_price': product.product_price,
+                                    'product_quantity':product.product_quantity,
+                                    'date_updated': product.date_updated,
+                                    'brand_id': product.brand_id})
         else:
             print('Good Bye')
             app_running = False
@@ -161,6 +218,6 @@ if __name__ == '__main__':
     add_csv_inventory()
     app()
 
-    for product in session.query(Product):
-        print(product)
+    #for product in session.query(Product):
+        #print(product)
 
