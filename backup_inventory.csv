@@ -24,3 +24,5 @@ product_id,product_name,product_price,product_quantity,date_updated,brand_id
 23,"Extract - Vanilla,artificial",291,20,2018-06-08 00:00:00,12
 24,"Mushroom - Porcini, Dry",814,71,2018-07-26 00:00:00,5
 25,Wine - Cabernet Sauvignon,741,54,2018-03-10 00:00:00,13
+26,Falafel,350,36,2021-01-24 00:00:00,5
+27,Jelly,568,44,2022-01-24 00:00:00,5

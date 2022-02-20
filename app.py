@@ -13,14 +13,14 @@ def menu():
             \r1. Enter the letter 'V' to view the details of a single product in the database
             \r2. Enter the letter 'N' to add a new product to the database
             \r3. Enter the letter 'A' to view an analysis
-            \r4. Enter the letter 'B' to make a backup of the entire contents of the database
+            \r4. Enter the letter 'B' to make a backup of the entire inventory
             \r5. Enter the letter 'E' to exit the menu
         ''')
         choice = input("What would you like to do? ")
         if choice in ['V', 'N', 'A', 'B', 'E']: 
             return choice
         else: 
-            input('''\rPlease choose one of the options above and hit enter''')
+            input('''\rYou did not choose a valid option. Please press enter to be prompted again. ''')
 
 def clean_date(date_str):
     try: 
@@ -41,7 +41,7 @@ def clean_price(price_str):
         price_float = float(price_str[1:])
         return_price = int(price_float * 100)
     except ValueError: 
-        input('''\n Please enter a valid price in the format 8.14 . 
+        input('''\n Please enter a valid price in the format $8.14 . 
                 \r Hit enter to try again ''')
         return
     else: 
@@ -146,11 +146,11 @@ def app():
             \r  | Quantity: {chosen_product.product_quantity} | Date Updated: {chosen_product.date_updated}') ''')
             # for product in session.query(Product):
             #     print(f'{product.product_id} | Product: {product.product_name} | Product Price: {product.product_price} cents | Quantity: {product.product_quantity} | Date Updated: {product.date_updated}')
-            input('\nPress Enter to return to the main menu')
+            input('\nPress Enter to return to the main menu ')
 
         elif choice == 'N':
             #add new product to database
-            product_name = input('Product Name: ')
+            product_name = input('New Product Name: ')
             price_error = True
             while price_error:
                 product_price = input('Product Price(Ex: $4.60 ): ')
@@ -165,14 +165,13 @@ def app():
                 if type(date_updated) == datetime.date:
                     date_error = False
             brand_name = input('Brand Name: ')
-            #this needs to be updated eventually
             brand_id = session.query(Brand).filter(Brand.brand_name == brand_name).first().brand_id
             new_product = Product(product_name=product_name, product_price=product_price,
                                 product_quantity=product_quantity, date_updated=date_updated,
                                 brand_id=brand_id)
             session.add(new_product)
             session.commit()
-            print('Book added!')
+            print('Product added!')
             time.sleep(1.5)
             
         elif choice == 'A':
@@ -188,11 +187,11 @@ def app():
                     highest_count = count
                     most_popular = brand
             print(f'''This is the most popular brand: {most_popular.brand_name}. There are {highest_count} products from this brand.''')
-                
+            time.sleep(1.5)
 
         elif choice == 'B':
             #make a backup of the entire database
-            with open('inventory_backup', 'a') as csvfile: 
+            with open('backup_inventory.csv', 'a') as csvfile: 
                 fieldnames = ['product_id','product_name','product_price','product_quantity','date_updated','brand_id']
                 dbwriter = csv.DictWriter(csvfile, fieldnames = fieldnames)
 
@@ -204,6 +203,15 @@ def app():
                                     'product_quantity':product.product_quantity,
                                     'date_updated': product.date_updated,
                                     'brand_id': product.brand_id})
+
+            with open('backup_brands.csv', 'a') as csvfile:
+                fieldnames = ['brand_id', 'brand_name']
+                dbwriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+                dbwriter.writeheader()
+                for brand in session.query(Brand):
+                    dbwriter.writerow({'brand_id': brand.brand_id,
+                                    'brand_name': brand.brand_name})
         else:
             print('Good Bye')
             app_running = False
