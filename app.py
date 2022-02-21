@@ -47,6 +47,17 @@ def clean_price(price_str):
     else: 
         return return_price
 
+
+def clean_quantity(quantity_str):
+    try:
+        quantity_int= int(quantity_str)
+    except ValueError:
+        input('''\n Please enter a valid quantity in numeric format (Ex: 56) . 
+                \r Hit enter to try again ''')
+        return
+    else:
+        return quantity_int
+
 def clean_id(id_str, id_choices):
     try: 
         product_id = int(id_str)
@@ -155,7 +166,12 @@ def app():
                 product_price = clean_price(product_price)
                 if type(product_price) == int:
                     price_error = False
-            product_quantity = input('Product Quantity(Ex: 44): ')
+            quantity_error = True
+            while quantity_error: 
+                product_quantity = input('Product Quantity(Ex: 44): ')
+                product_quantity = clean_quantity(product_quantity)
+                if type(product_quantity) == int: 
+                    quantity_error = False
             date_error = True
             while date_error: 
                 date_updated = input('Date Updated(Ex:1/20/2018): ')
