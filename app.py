@@ -143,9 +143,7 @@ def app():
             chosen_product = session.query(Product).filter(Product.product_id == id_choice).first()
             print(f'''
             \n{chosen_product.product_id} | Name: {chosen_product.product_name} | Price: ${chosen_product.product_price/100} 
-            \r  | Quantity: {chosen_product.product_quantity} | Date Updated: {chosen_product.date_updated}') ''')
-            # for product in session.query(Product):
-            #     print(f'{product.product_id} | Product: {product.product_name} | Product Price: {product.product_price} cents | Quantity: {product.product_quantity} | Date Updated: {product.date_updated}')
+            \r  | Quantity: {chosen_product.product_quantity} Date Updated: {chosen_product.date_updated} | Brand ID: {chosen_product.brand_id} ''')
             input('\nPress Enter to return to the main menu ')
 
         elif choice == 'N':
